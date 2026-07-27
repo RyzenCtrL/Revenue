@@ -41,6 +41,21 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Recharts draws focusable SVG elements (bars, sectors) that pick up the
+   browser's default focus/tap outline as a bounding-box rectangle — kill it
+   and rely on our own hover/active states instead. */
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-surface {
+  outline: none !important;
+}
+.recharts-sector,
+.recharts-rectangle,
+.recharts-dot {
+  cursor: pointer;
 }
 
 html,

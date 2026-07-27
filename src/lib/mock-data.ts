@@ -28,7 +28,7 @@ const MONTH_NAMES = [
 const CATEGORIES = [
   {
     name: "Электроника",
-    color: "#34e58a",
+    color: "#86efac",
     products: [
       "Наушники TWS Pro",
       "Смарт-часы Series 5",
@@ -39,7 +39,7 @@ const CATEGORIES = [
   },
   {
     name: "Одежда и обувь",
-    color: "#22c55e",
+    color: "#4ade80",
     products: [
       "Кроссовки Runner",
       "Куртка демисезонная",
@@ -50,7 +50,7 @@ const CATEGORIES = [
   },
   {
     name: "Дом и сад",
-    color: "#16a34a",
+    color: "#22c55e",
     products: [
       "Диффузор ароматов",
       "Набор кухонных ножей",
@@ -61,7 +61,7 @@ const CATEGORIES = [
   },
   {
     name: "Красота и здоровье",
-    color: "#0d9488",
+    color: "#16a34a",
     products: [
       "Сыворотка для лица",
       "Электрическая зубная щётка",
@@ -72,7 +72,7 @@ const CATEGORIES = [
   },
   {
     name: "Спорт и отдых",
-    color: "#6b8577",
+    color: "#15803d",
     products: [
       "Коврик для йоги",
       "Гантели наборные",
