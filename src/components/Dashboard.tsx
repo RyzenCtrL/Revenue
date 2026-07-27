@@ -13,6 +13,11 @@ import { OrdersTable } from "./OrdersTable";
 
 export function Dashboard() {
   const [period, setPeriod] = useState<Period>("month");
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+
+  function toggleCategoryFilter(name: string) {
+    setCategoryFilter((prev) => (prev === name ? null : name));
+  }
 
   return (
     <CurrencyProvider>
@@ -27,11 +32,19 @@ export function Dashboard() {
               <RevenueChart data={monthlyRevenue} />
             </div>
             <div>
-              <CategoryDonut slices={categorySlices} />
+              <CategoryDonut
+                slices={categorySlices}
+                activeCategory={categoryFilter}
+                onToggle={toggleCategoryFilter}
+              />
             </div>
           </div>
 
-          <OrdersTable orders={orders} />
+          <OrdersTable
+            orders={orders}
+            categoryFilter={categoryFilter}
+            onClearCategoryFilter={() => setCategoryFilter(null)}
+          />
         </main>
 
         <footer className="mx-auto max-w-6xl px-5 pb-28 pt-2 text-center text-[11px] text-ink-muted md:px-8 md:pb-10">

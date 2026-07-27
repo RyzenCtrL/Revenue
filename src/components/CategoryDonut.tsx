@@ -1,20 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import type { CategorySlice } from "@/lib/types";
 import { formatCompact } from "@/lib/format";
 import { useCurrency } from "@/lib/currency";
 
-export function CategoryDonut({ slices }: { slices: CategorySlice[] }) {
+export function CategoryDonut({
+  slices,
+  activeCategory,
+  onToggle,
+}: {
+  slices: CategorySlice[];
+  activeCategory: string | null;
+  onToggle: (name: string) => void;
+}) {
   const { currency } = useCurrency();
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const total = slices.reduce((acc, s) => acc + s.value, 0);
-  const active = activeIndex !== null ? slices[activeIndex] : null;
-
-  function toggle(i: number) {
-    setActiveIndex((prev) => (prev === i ? null : i));
-  }
+  const active = slices.find((s) => s.name === activeCategory) ?? null;
 
   return (
     <div className="card flex h-full flex-col p-5 md:p-6">
@@ -22,7 +24,9 @@ export function CategoryDonut({ slices }: { slices: CategorySlice[] }) {
         Продажи по категориям
       </h2>
       <p className="mt-1 text-[12px] text-ink-muted">
-        Нажмите на сегмент, чтобы выделить
+        {active
+          ? "Заказы ниже отфильтрованы по этой категории"
+          : "Нажмите на сегмент, чтобы отфильтровать заказы"}
       </p>
 
       <div className="chart-well mt-5 flex items-center justify-center py-6">
@@ -53,7 +57,7 @@ export function CategoryDonut({ slices }: { slices: CategorySlice[] }) {
                 paddingAngle={2.5}
                 stroke="none"
                 isAnimationActive={false}
-                onClick={(_, i) => toggle(i)}
+                onClick={(_, i) => onToggle(slices[i].name)}
               >
                 {slices.map((s, i) => (
                   <Cell
@@ -83,12 +87,12 @@ export function CategoryDonut({ slices }: { slices: CategorySlice[] }) {
       </div>
 
       <ul className="mt-6 flex flex-col gap-0.5">
-        {slices.map((s, i) => {
+        {slices.map((s) => {
           const isActive = active?.name === s.name;
           return (
             <li key={s.name}>
               <button
-                onClick={() => toggle(i)}
+                onClick={() => onToggle(s.name)}
                 className={`flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-[13px] transition-colors duration-200 ${
                   isActive ? "bg-surface-hover" : "hover:bg-surface-hover"
                 }`}
