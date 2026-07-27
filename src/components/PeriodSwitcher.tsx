@@ -26,10 +26,10 @@ export function PeriodSwitcher({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(p)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors ${
+            className={`shrink-0 rounded-full px-4 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors duration-200 ${
               active
-                ? "bg-accent-soft text-accent-bright"
-                : "text-ink-secondary hover:text-ink-primary"
+                ? "accent-glass text-accent-bright"
+                : "border border-transparent text-ink-secondary hover:text-ink-primary"
             }`}
           >
             {PERIOD_LABELS[p]}

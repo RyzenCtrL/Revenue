@@ -162,6 +162,37 @@ body {
   background: var(--surface-inner);
 }
 
+/* A second, quieter pane of glass that a chart sits inside — recesses the
+   plot area from the card around it instead of floating it on bare surface. */
+.chart-well {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.045) 0%,
+    rgba(255, 255, 255, 0.01) 55%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
+}
+
+/* A soft gradient wash for the "selected" pill state — used in place of a
+   flat accent fill so active controls read as lit glass, not a sticker. */
+.accent-glass {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.24) 0%,
+    rgba(34, 197, 94, 0.08) 100%
+  );
+  border: 1px solid var(--accent-border);
+}
+
+/* Selecting a donut slice fades it in/out instead of snapping — the one
+   deliberate motion touch on this page, done in plain CSS. */
+.donut-cell {
+  transition: fill-opacity 260ms ease;
+}
+
 .tabular {
   font-variant-numeric: tabular-nums;
 }

@@ -23,42 +23,60 @@ export function CategoryDonut({ slices }: { slices: CategorySlice[] }) {
         Нажмите на сегмент, чтобы выделить
       </p>
 
-      <div className="relative mx-auto mt-6 h-[176px] w-[176px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={slices}
-              dataKey="value"
-              nameKey="name"
-              innerRadius="70%"
-              outerRadius="100%"
-              paddingAngle={2.5}
-              stroke="none"
-              isAnimationActive={false}
-              onClick={(_, i) => toggle(i)}
-            >
-              {slices.map((s) => (
-                <Cell
-                  key={s.name}
-                  fill={s.color}
-                  fillOpacity={active === null || active.name === s.name ? 1 : 0.22}
-                />
-              ))}
-            </Pie>
-          </PieChart>
-        </ResponsiveContainer>
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
-          <span className="text-[11px] text-ink-muted">
-            {active ? active.name : "Всего"}
-          </span>
-          <span className="mt-1 tabular text-[18px] font-medium tracking-tight text-ink-primary">
-            {formatCompact(active ? active.value : total)}
-          </span>
-          {active && (
-            <span className="mt-0.5 tabular text-[11px] text-accent-bright">
-              {active.percent.toFixed(1)}%
+      <div className="chart-well mt-5 flex items-center justify-center py-6">
+        <div className="relative h-[168px] w-[168px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <defs>
+                {slices.map((s, i) => (
+                  <linearGradient
+                    key={s.name}
+                    id={`donut-grad-${i}`}
+                    x1="0"
+                    y1="0"
+                    x2="1"
+                    y2="1"
+                  >
+                    <stop offset="0%" stopColor={s.colorFrom} />
+                    <stop offset="100%" stopColor={s.colorTo} />
+                  </linearGradient>
+                ))}
+              </defs>
+              <Pie
+                data={slices}
+                dataKey="value"
+                nameKey="name"
+                innerRadius="70%"
+                outerRadius="100%"
+                paddingAngle={2.5}
+                stroke="none"
+                isAnimationActive={false}
+                onClick={(_, i) => toggle(i)}
+              >
+                {slices.map((s, i) => (
+                  <Cell
+                    key={s.name}
+                    fill={`url(#donut-grad-${i})`}
+                    fillOpacity={active === null || active.name === s.name ? 1 : 0.2}
+                    className="donut-cell"
+                  />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
+            <span className="text-[11px] text-ink-muted">
+              {active ? active.name : "Всего"}
             </span>
-          )}
+            <span className="mt-1 tabular text-[18px] font-medium tracking-tight text-ink-primary">
+              {formatCompact(active ? active.value : total)}
+            </span>
+            {active && (
+              <span className="mt-0.5 tabular text-[11px] text-accent-bright">
+                {active.percent.toFixed(1)}%
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -69,17 +87,19 @@ export function CategoryDonut({ slices }: { slices: CategorySlice[] }) {
             <li key={s.name}>
               <button
                 onClick={() => toggle(i)}
-                className={`flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-[13px] transition-colors ${
+                className={`flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-[13px] transition-colors duration-200 ${
                   isActive ? "bg-surface-hover" : "hover:bg-surface-hover"
                 }`}
               >
                 <span className="flex min-w-0 items-center gap-2.5">
                   <span
                     className="h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ background: s.color }}
+                    style={{
+                      background: `linear-gradient(135deg, ${s.colorFrom}, ${s.colorTo})`,
+                    }}
                   />
                   <span
-                    className={`truncate ${
+                    className={`truncate transition-colors duration-200 ${
                       isActive ? "text-ink-primary" : "text-ink-secondary"
                     }`}
                   >
@@ -87,7 +107,7 @@ export function CategoryDonut({ slices }: { slices: CategorySlice[] }) {
                   </span>
                 </span>
                 <span
-                  className={`shrink-0 tabular font-medium ${
+                  className={`shrink-0 tabular font-medium transition-colors duration-200 ${
                     isActive ? "text-accent-bright" : "text-ink-primary"
                   }`}
                 >

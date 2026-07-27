@@ -28,6 +28,8 @@ export interface CategorySlice {
   value: number;
   percent: number;
   color: string;
+  colorFrom: string;
+  colorTo: string;
 }
 
 export interface KpiMetric {

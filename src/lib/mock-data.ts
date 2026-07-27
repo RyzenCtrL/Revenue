@@ -186,7 +186,15 @@ export const orders: Order[] = Array.from({ length: 56 }).map((_, i) => {
 
 // Colour is assigned by rank, not by category identity: the ramp runs
 // bright → deep so the largest share always reads as the most luminous.
-const CATEGORY_RAMP = ["#5ff2a0", "#34e58a", "#22c55e", "#189d54", "#0f7040"];
+// Each step is a {from, to} pair so slices render as a soft gradient
+// (a lit inner edge fading to the base tone) instead of a flat fill.
+const CATEGORY_RAMP: { from: string; to: string }[] = [
+  { from: "#b8ffd9", to: "#5ff2a0" },
+  { from: "#7ff2b8", to: "#34e58a" },
+  { from: "#6ee89a", to: "#22c55e" },
+  { from: "#4bc07d", to: "#189d54" },
+  { from: "#2f9860", to: "#0f7040" },
+];
 
 export const categorySlices: CategorySlice[] = (() => {
   const totals = new Map<string, number>();
@@ -205,10 +213,10 @@ export const categorySlices: CategorySlice[] = (() => {
     };
   })
     .sort((a, b) => b.value - a.value)
-    .map((slice, i) => ({
-      ...slice,
-      color: CATEGORY_RAMP[i % CATEGORY_RAMP.length],
-    }));
+    .map((slice, i) => {
+      const step = CATEGORY_RAMP[i % CATEGORY_RAMP.length];
+      return { ...slice, color: step.to, colorFrom: step.from, colorTo: step.to };
+    });
 })();
 
 // ---------- KPI cards per period ----------

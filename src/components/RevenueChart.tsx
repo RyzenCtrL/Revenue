@@ -73,9 +73,9 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
             aria-label="Линейный график"
             aria-pressed={mode === "line"}
             onClick={() => setMode("line")}
-            className={`rounded-full p-1.5 transition-colors ${
+            className={`rounded-full border border-transparent p-1.5 transition-colors duration-200 ${
               mode === "line"
-                ? "bg-accent-soft text-accent-bright"
+                ? "accent-glass text-accent-bright"
                 : "text-ink-muted hover:text-ink-secondary"
             }`}
           >
@@ -85,9 +85,9 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
             aria-label="Столбчатый график"
             aria-pressed={mode === "bar"}
             onClick={() => setMode("bar")}
-            className={`rounded-full p-1.5 transition-colors ${
+            className={`rounded-full border border-transparent p-1.5 transition-colors duration-200 ${
               mode === "bar"
-                ? "bg-accent-soft text-accent-bright"
+                ? "accent-glass text-accent-bright"
                 : "text-ink-muted hover:text-ink-secondary"
             }`}
           >
@@ -107,7 +107,8 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
         </span>
       </div>
 
-      <div className="mt-5 h-[220px] w-full md:h-[300px] lg:h-[340px]">
+      <div className="chart-well mt-5 p-3 md:p-4">
+      <div className="h-[210px] w-full md:h-[288px] lg:h-[324px]">
         <ResponsiveContainer width="100%" height="100%">
           {mode === "line" ? (
             <AreaChart data={data} margin={{ top: 8, right: 4, left: -6, bottom: 0 }}>
@@ -115,6 +116,10 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
                 <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--accent-bright)" stopOpacity={0.24} />
                   <stop offset="100%" stopColor="var(--accent-bright)" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="revenueStroke" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#7cf0ad" />
+                  <stop offset="100%" stopColor="var(--accent-bright)" />
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} stroke="var(--border)" />
@@ -148,7 +153,7 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
               <Area
                 type="monotone"
                 dataKey="revenue"
-                stroke="var(--accent-bright)"
+                stroke="url(#revenueStroke)"
                 strokeWidth={2}
                 fill="url(#revenueFill)"
                 isAnimationActive={false}
@@ -163,6 +168,12 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
             </AreaChart>
           ) : (
             <BarChart data={data} margin={{ top: 8, right: 4, left: -6, bottom: 0 }} barGap={3}>
+              <defs>
+                <linearGradient id="barFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#7cf0ad" />
+                  <stop offset="100%" stopColor="var(--accent)" />
+                </linearGradient>
+              </defs>
               <CartesianGrid vertical={false} stroke="var(--border)" />
               <XAxis
                 dataKey="month"
@@ -191,7 +202,7 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
               />
               <Bar
                 dataKey="revenue"
-                fill="var(--accent)"
+                fill="url(#barFill)"
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
                 maxBarSize={14}
@@ -199,6 +210,7 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
             </BarChart>
           )}
         </ResponsiveContainer>
+      </div>
       </div>
     </div>
   );
