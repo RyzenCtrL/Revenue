@@ -4,11 +4,20 @@ import { useMemo, useRef, useState } from "react";
 import type { Order, OrderStatus } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useCurrency } from "@/lib/currency";
-import { StatusBadge } from "./StatusBadge";
+import { StatusBadge, STATUS_CONFIG } from "./StatusBadge";
 import { SortIcon } from "./icons";
 
 type SortKey = "id" | "product" | "amount" | "status" | "date";
 type SortDir = "asc" | "desc";
+type StatusFilter = "all" | OrderStatus;
+
+const FILTERS: { value: StatusFilter; label: string }[] = [
+  { value: "all", label: "Все" },
+  ...(Object.keys(STATUS_CONFIG) as OrderStatus[]).map((status) => ({
+    value: status,
+    label: STATUS_CONFIG[status].label,
+  })),
+];
 
 const STATUS_ORDER: Record<OrderStatus, number> = {
   delivered: 0,
@@ -45,7 +54,9 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
   const { currency } = useCurrency();
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [page, setPage] = useState(0);
+  const [direction, setDirection] = useState(1);
 
   function toggleSort(key: SortKey) {
     if (key === sortKey) {
@@ -57,8 +68,21 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
     setPage(0);
   }
 
+  function selectFilter(value: StatusFilter) {
+    setStatusFilter(value);
+    setPage(0);
+  }
+
+  const filtered = useMemo(
+    () =>
+      statusFilter === "all"
+        ? orders
+        : orders.filter((o) => o.status === statusFilter),
+    [orders, statusFilter]
+  );
+
   const sorted = useMemo(() => {
-    const copy = [...orders];
+    const copy = [...filtered];
     copy.sort((a, b) => {
       let cmp = 0;
       switch (sortKey) {
@@ -81,7 +105,7 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return copy;
-  }, [orders, sortKey, sortDir]);
+  }, [filtered, sortKey, sortDir]);
 
   const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const clampedPage = Math.min(page, pageCount - 1);
@@ -91,7 +115,10 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
   );
 
   const goToPage = (next: number) => {
-    setPage(Math.max(0, Math.min(pageCount - 1, next)));
+    const clamped = Math.max(0, Math.min(pageCount - 1, next));
+    if (clamped === clampedPage) return;
+    setDirection(clamped > clampedPage ? 1 : -1);
+    setPage(clamped);
   };
 
   // Swipe-to-paginate for the mobile card list — a horizontal drag that
@@ -128,9 +155,31 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
         </div>
       </div>
 
+      {/* Mobile: status filter chips */}
+      <div className="mt-4 flex gap-1.5 overflow-x-auto no-scrollbar md:hidden">
+        {FILTERS.map((f) => {
+          const active = f.value === statusFilter;
+          return (
+            <button
+              key={f.value}
+              onClick={() => selectFilter(f.value)}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-[12px] font-medium whitespace-nowrap transition-colors duration-200 ${
+                active
+                  ? "accent-glass text-accent-bright"
+                  : "border-border text-ink-secondary hover:text-ink-primary"
+              }`}
+            >
+              {f.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Mobile: card list — swipe left/right to page */}
       <ul
-        className="mt-5 flex flex-col gap-2 md:hidden"
+        key={clampedPage}
+        className="page-slide mt-5 flex flex-col gap-2 md:hidden"
+        style={{ "--slide-dir": direction } as React.CSSProperties}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -212,7 +261,11 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
           ))}
         </div>
 
-        <div className="flex flex-col">
+        <div
+          key={clampedPage}
+          className="page-slide flex flex-col"
+          style={{ "--slide-dir": direction } as React.CSSProperties}
+        >
           {pageItems.map((o) => (
             <div
               key={o.id}

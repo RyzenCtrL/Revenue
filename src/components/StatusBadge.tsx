@@ -1,6 +1,6 @@
 import type { OrderStatus } from "@/lib/types";
 
-const STATUS_CONFIG: Record<
+export const STATUS_CONFIG: Record<
   OrderStatus,
   { label: string; dot: string; text: string }
 > = {
