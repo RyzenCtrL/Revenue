@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { Order, OrderStatus } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { StatusBadge } from "./StatusBadge";
@@ -88,6 +88,31 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
     clampedPage * PAGE_SIZE + PAGE_SIZE
   );
 
+  const goToPage = (next: number) => {
+    setPage(Math.max(0, Math.min(pageCount - 1, next)));
+  };
+
+  // Swipe-to-paginate for the mobile card list — a horizontal drag that
+  // clearly outpaces vertical movement (so it doesn't fight page scroll)
+  // moves to the next/previous page, same as the Назад/Далее buttons.
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    goToPage(dx < 0 ? clampedPage + 1 : clampedPage - 1);
+  }
+
   return (
     <div className="card p-5 md:p-6">
       <div className="flex items-baseline justify-between gap-3">
@@ -101,8 +126,12 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
         </div>
       </div>
 
-      {/* Mobile: card list */}
-      <ul className="mt-5 flex flex-col gap-2 md:hidden">
+      {/* Mobile: card list — swipe left/right to page */}
+      <ul
+        className="mt-5 flex flex-col gap-2 md:hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {pageItems.map((o) => (
           <li key={o.id} className="inset p-4">
             <div className="flex items-start justify-between gap-3">
@@ -123,6 +152,23 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
           </li>
         ))}
       </ul>
+
+      {pageCount > 1 && (
+        <div className="mt-4 flex justify-center gap-1.5 md:hidden">
+          {Array.from({ length: pageCount }).map((_, i) => (
+            <button
+              key={i}
+              aria-label={`Страница ${i + 1}`}
+              onClick={() => goToPage(i)}
+              className={`h-1.5 rounded-full transition-all ${
+                i === clampedPage
+                  ? "w-4 bg-accent-bright"
+                  : "w-1.5 bg-border-strong"
+              }`}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Desktop: grid rows (not a native table — a <table> won't reserve
           a gap between cells, columns need explicit spacing to line up) */}
@@ -202,14 +248,14 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
         </span>
         <div className="flex gap-2">
           <button
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            onClick={() => goToPage(clampedPage - 1)}
             disabled={clampedPage === 0}
             className="rounded-full border border-border px-4 py-1.5 text-[12px] text-ink-secondary transition-colors hover:bg-surface-hover hover:text-ink-primary disabled:opacity-25 disabled:hover:bg-transparent"
           >
             Назад
           </button>
           <button
-            onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+            onClick={() => goToPage(clampedPage + 1)}
             disabled={clampedPage >= pageCount - 1}
             className="rounded-full border border-border px-4 py-1.5 text-[12px] text-ink-secondary transition-colors hover:bg-surface-hover hover:text-ink-primary disabled:opacity-25 disabled:hover:bg-transparent"
           >
