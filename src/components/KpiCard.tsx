@@ -9,7 +9,7 @@ export function KpiCard({
   metric: KpiMetric;
   className?: string;
 }) {
-  const { label, value, delta, isPositive, sparkline } = metric;
+  const { label, value, delta, isPositive, sparkline, unit } = metric;
   const DeltaIcon = delta >= 0 ? ArrowUpIcon : ArrowDownIcon;
 
   return (
@@ -37,7 +37,7 @@ export function KpiCard({
       </div>
 
       <div className="mt-5 -mx-1">
-        <Sparkline data={sparkline} positive={isPositive} />
+        <Sparkline data={sparkline} positive={isPositive} unit={unit} />
       </div>
     </div>
   );

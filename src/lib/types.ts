@@ -32,11 +32,19 @@ export interface CategorySlice {
   colorTo: string;
 }
 
+export type MetricUnit = "currency" | "count" | "percent";
+
+export interface SparklinePoint {
+  label: string;
+  value: number;
+}
+
 export interface KpiMetric {
   id: string;
   label: string;
   value: string;
   delta: number; // signed, percent
   isPositive: boolean;
-  sparkline: number[];
+  unit: MetricUnit;
+  sparkline: SparklinePoint[];
 }

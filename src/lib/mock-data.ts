@@ -2,10 +2,12 @@ import { mulberry32, pick, randInt } from "./random";
 import type {
   CategorySlice,
   KpiMetric,
+  MetricUnit,
   MonthlyPoint,
   Order,
   OrderStatus,
   Period,
+  SparklinePoint,
 } from "./types";
 
 const rng = mulberry32(20260727);
@@ -24,6 +26,8 @@ const MONTH_NAMES = [
   "Ноя",
   "Дек",
 ];
+
+const WEEKDAY_NAMES = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 
 const CATEGORIES = [
   {
@@ -221,64 +225,119 @@ export const categorySlices: CategorySlice[] = (() => {
 
 // ---------- KPI cards per period ----------
 
-function sparkline(points: number, trendUp: boolean): number[] {
-  let v = 50 + rng() * 20;
-  const arr: number[] = [];
-  for (let i = 0; i < points; i++) {
-    const drift = (trendUp ? 1 : -1) * (i / points) * 8;
-    v += (rng() - 0.45) * 10 + drift * 0.15;
-    v = Math.max(10, v);
-    arr.push(Math.round(v));
-  }
-  return arr;
+// How many sparkline points per period, and what each one represents —
+// so hovering a point shows a real "what happened then" label instead of
+// an unlabeled squiggle.
+const SPARKLINE_POINTS: Record<Period, number> = {
+  today: 8,
+  week: 7,
+  month: 10,
+  year: 12,
+};
+
+function sparklineLabels(period: Period, count: number): string[] {
+  return Array.from({ length: count }).map((_, i) => {
+    const stepsAgo = count - 1 - i;
+    const d = new Date(now);
+    switch (period) {
+      case "today":
+        d.setHours(d.getHours() - stepsAgo, 0, 0, 0);
+        return `${pad(d.getHours())}:00`;
+      case "week":
+        d.setDate(d.getDate() - stepsAgo);
+        return WEEKDAY_NAMES[d.getDay()];
+      case "month":
+        d.setDate(d.getDate() - stepsAgo * 3);
+        return `${d.getDate()} ${MONTH_NAMES[d.getMonth()].toLowerCase()}`;
+      case "year":
+        d.setMonth(d.getMonth() - stepsAgo);
+        return MONTH_NAMES[d.getMonth()];
+    }
+  });
+}
+
+// Points walk from a start factor toward the metric's actual current value
+// (in the same unit/scale it's displayed in) so the last point always
+// matches the big number, and the shape leans the way the delta says it did.
+function sparklinePoints(
+  rawValue: number,
+  unit: MetricUnit,
+  trendUp: boolean,
+  period: Period
+): SparklinePoint[] {
+  const count = SPARKLINE_POINTS[period];
+  const labels = sparklineLabels(period, count);
+  const startFactor = trendUp ? 0.8 : 1.22;
+
+  return labels.map((label, i) => {
+    const t = i / (count - 1);
+    const base = rawValue * (startFactor + (1 - startFactor) * t);
+    const noise = base * (rng() - 0.5) * 0.1;
+    let value = base + noise;
+    if (unit === "count") value = Math.max(0, Math.round(value));
+    if (unit === "percent") value = Math.round(Math.max(0, value) * 10) / 10;
+    return { label, value };
+  });
 }
 
 function kpi(
   id: string,
   label: string,
   value: string,
+  rawValue: number,
+  unit: MetricUnit,
   delta: number,
-  opts: { invert?: boolean; points?: number } = {}
+  period: Period,
+  opts: { invert?: boolean } = {}
 ): KpiMetric {
-  const { invert = false, points = 10 } = opts;
+  const { invert = false } = opts;
   return {
     id,
     label,
     value,
     delta,
     isPositive: invert ? delta <= 0 : delta >= 0,
-    sparkline: sparkline(points, delta >= 0),
+    unit,
+    sparkline: sparklinePoints(rawValue, unit, delta >= 0, period),
   };
 }
 
 export const kpiByPeriod: Record<Period, KpiMetric[]> = {
   today: [
-    kpi("revenue", "Выручка", "184 200 ₽", 6.4),
-    kpi("orders", "Заказы", "27", 3.1),
-    kpi("aov", "Средний чек", "6 822 ₽", 2.9),
-    kpi("conversion", "Конверсия", "3.8%", -0.4),
-    kpi("refunds", "Возвраты", "1.9%", -1.2, { invert: true }),
+    kpi("revenue", "Выручка", "184 200 ₽", 184200, "currency", 6.4, "today"),
+    kpi("orders", "Заказы", "27", 27, "count", 3.1, "today"),
+    kpi("aov", "Средний чек", "6 822 ₽", 6822, "currency", 2.9, "today"),
+    kpi("conversion", "Конверсия", "3.8%", 3.8, "percent", -0.4, "today"),
+    kpi("refunds", "Возвраты", "1.9%", 1.9, "percent", -1.2, "today", {
+      invert: true,
+    }),
   ],
   week: [
-    kpi("revenue", "Выручка", "1,25 млн ₽", 9.2),
-    kpi("orders", "Заказы", "182", 5.6),
-    kpi("aov", "Средний чек", "6 851 ₽", 3.4),
-    kpi("conversion", "Конверсия", "4.1%", 0.6),
-    kpi("refunds", "Возвраты", "2.3%", 0.8, { invert: true }),
+    kpi("revenue", "Выручка", "1,25 млн ₽", 1246800, "currency", 9.2, "week"),
+    kpi("orders", "Заказы", "182", 182, "count", 5.6, "week"),
+    kpi("aov", "Средний чек", "6 851 ₽", 6851, "currency", 3.4, "week"),
+    kpi("conversion", "Конверсия", "4.1%", 4.1, "percent", 0.6, "week"),
+    kpi("refunds", "Возвраты", "2.3%", 2.3, "percent", 0.8, "week", {
+      invert: true,
+    }),
   ],
   month: [
-    kpi("revenue", "Выручка", "5,32 млн ₽", 12.7),
-    kpi("orders", "Заказы", "764", 8.9),
-    kpi("aov", "Средний чек", "6 962 ₽", 3.5),
-    kpi("conversion", "Конверсия", "4.4%", 1.1),
-    kpi("refunds", "Возвраты", "2.1%", -0.5, { invert: true }),
+    kpi("revenue", "Выручка", "5,32 млн ₽", 5318400, "currency", 12.7, "month"),
+    kpi("orders", "Заказы", "764", 764, "count", 8.9, "month"),
+    kpi("aov", "Средний чек", "6 962 ₽", 6962, "currency", 3.5, "month"),
+    kpi("conversion", "Конверсия", "4.4%", 4.4, "percent", 1.1, "month"),
+    kpi("refunds", "Возвраты", "2.1%", 2.1, "percent", -0.5, "month", {
+      invert: true,
+    }),
   ],
   year: [
-    kpi("revenue", "Выручка", "58,9 млн ₽", 24.3),
-    kpi("orders", "Заказы", "8 512", 17.8),
-    kpi("aov", "Средний чек", "6 924 ₽", 5.2),
-    kpi("conversion", "Конверсия", "4.2%", 2.0),
-    kpi("refunds", "Возвраты", "2.4%", -0.9, { invert: true }),
+    kpi("revenue", "Выручка", "58,9 млн ₽", 58900000, "currency", 24.3, "year"),
+    kpi("orders", "Заказы", "8 512", 8512, "count", 17.8, "year"),
+    kpi("aov", "Средний чек", "6 924 ₽", 6924, "currency", 5.2, "year"),
+    kpi("conversion", "Конверсия", "4.2%", 4.2, "percent", 2.0, "year"),
+    kpi("refunds", "Возвраты", "2.4%", 2.4, "percent", -0.9, "year", {
+      invert: true,
+    }),
   ],
 };
 

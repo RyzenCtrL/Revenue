@@ -36,6 +36,20 @@ export function formatPercent(value: number): string {
   return `${value.toFixed(1)}%`;
 }
 
+export function formatByUnit(
+  value: number,
+  unit: "currency" | "count" | "percent"
+): string {
+  switch (unit) {
+    case "currency":
+      return formatCompact(value);
+    case "percent":
+      return formatPercent(value);
+    case "count":
+      return formatNumber(Math.round(value));
+  }
+}
+
 export function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("ru-RU", {
     day: "2-digit",
