@@ -25,6 +25,11 @@ const COLUMNS: { key: SortKey; label: string; align?: "right" }[] = [
   { key: "date", label: "Дата" },
 ];
 
+// Shared between the header row and every data row so columns line up —
+// a native <table> won't reserve a gap between cells, which is exactly
+// what made Сумма and Статус run into each other before.
+const GRID_COLS = "104px minmax(0,1fr) 108px 148px 68px";
+
 const PAGE_SIZE = 8;
 
 function ProductPill({ children }: { children: React.ReactNode }) {
@@ -119,72 +124,75 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
         ))}
       </ul>
 
-      {/* Desktop: table */}
-      <div className="mt-5 hidden md:block">
-        <table className="w-full border-collapse text-[13px]">
-          <thead>
-            <tr className="border-b border-border">
-              {COLUMNS.map((col) => (
-                <th
-                  key={col.key}
-                  aria-sort={
-                    sortKey === col.key
-                      ? sortDir === "asc"
-                        ? "ascending"
-                        : "descending"
-                      : "none"
-                  }
-                  className={`select-none pb-3 text-[11px] font-medium uppercase tracking-wide text-ink-muted ${
-                    col.align === "right" ? "text-right" : "text-left"
-                  }`}
-                >
-                  <button
-                    onClick={() => toggleSort(col.key)}
-                    className={`inline-flex items-center gap-1.5 transition-colors hover:text-ink-secondary ${
-                      col.align === "right" ? "flex-row-reverse" : ""
-                    } ${sortKey === col.key ? "text-ink-secondary" : ""}`}
-                  >
-                    {col.label}
-                    <SortIcon
-                      className={`h-2.5 w-2.5 ${
-                        sortKey === col.key && sortDir === "asc"
-                          ? "rotate-180"
-                          : ""
-                      } ${sortKey === col.key ? "opacity-100" : "opacity-25"}`}
-                    />
-                  </button>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {pageItems.map((o) => (
-              <tr
-                key={o.id}
-                className="border-b border-border/50 last:border-0 transition-colors hover:bg-surface-hover"
+      {/* Desktop: grid rows (not a native table — a <table> won't reserve
+          a gap between cells, columns need explicit spacing to line up) */}
+      <div className="mt-5 hidden md:block" role="table" aria-label="Заказы">
+        <div
+          role="row"
+          className="grid items-center gap-x-5 border-b border-border pb-3"
+          style={{ gridTemplateColumns: GRID_COLS }}
+        >
+          {COLUMNS.map((col) => (
+            <div
+              key={col.key}
+              role="columnheader"
+              aria-sort={
+                sortKey === col.key
+                  ? sortDir === "asc"
+                    ? "ascending"
+                    : "descending"
+                  : "none"
+              }
+              className={`select-none text-[11px] font-medium uppercase tracking-wide text-ink-muted ${
+                col.align === "right" ? "text-right" : "text-left"
+              }`}
+            >
+              <button
+                onClick={() => toggleSort(col.key)}
+                className={`inline-flex items-center gap-1.5 transition-colors hover:text-ink-secondary ${
+                  col.align === "right" ? "flex-row-reverse" : ""
+                } ${sortKey === col.key ? "text-ink-secondary" : ""}`}
               >
-                <td className="py-4 font-mono text-[12px] text-ink-muted">
-                  {o.id}
-                </td>
-                <td className="py-4 pr-4">
-                  <ProductPill>{o.product}</ProductPill>
-                  <p className="mt-1.5 text-[11px] text-ink-muted">
-                    {o.category}
-                  </p>
-                </td>
-                <td className="tabular py-4 text-right font-medium text-ink-primary">
-                  {formatCurrency(o.amount)}
-                </td>
-                <td className="py-4">
-                  <StatusBadge status={o.status} />
-                </td>
-                <td className="tabular py-4 text-[12px] text-ink-secondary">
-                  {formatDate(o.date)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                {col.label}
+                <SortIcon
+                  className={`h-2.5 w-2.5 ${
+                    sortKey === col.key && sortDir === "asc" ? "rotate-180" : ""
+                  } ${sortKey === col.key ? "opacity-100" : "opacity-25"}`}
+                />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col">
+          {pageItems.map((o) => (
+            <div
+              key={o.id}
+              role="row"
+              className="grid items-center gap-x-5 rounded-xl px-2 py-3.5 transition-colors hover:bg-surface-hover"
+              style={{ gridTemplateColumns: GRID_COLS }}
+            >
+              <div role="cell" className="font-mono text-[12px] text-ink-muted">
+                {o.id}
+              </div>
+              <div role="cell" className="min-w-0">
+                <ProductPill>{o.product}</ProductPill>
+                <p className="mt-1.5 truncate text-[11px] text-ink-muted">
+                  {o.category}
+                </p>
+              </div>
+              <div role="cell" className="tabular text-right font-medium text-ink-primary">
+                {formatCurrency(o.amount)}
+              </div>
+              <div role="cell">
+                <StatusBadge status={o.status} />
+              </div>
+              <div role="cell" className="tabular text-[12px] text-ink-secondary">
+                {formatDate(o.date)}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Pagination */}
