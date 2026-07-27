@@ -13,7 +13,7 @@ import {
   YAxis,
 } from "recharts";
 import type { MonthlyPoint } from "@/lib/types";
-import { formatCompact } from "@/lib/format";
+import { formatAxisTick, formatCompact } from "@/lib/format";
 import { BarChartIcon, LineChartIcon } from "./icons";
 
 type ChartMode = "line" | "bar";
@@ -33,15 +33,21 @@ function CustomTooltip({
     payload.find((p) => p.dataKey === "previousRevenue")?.value ?? 0;
 
   return (
-    <div className="glass rounded-xl px-3.5 py-2.5 text-xs shadow-xl">
-      <p className="mb-1.5 font-medium text-ink-primary">{label}</p>
+    <div className="rounded-xl border border-border-strong bg-surface-solid/95 px-3.5 py-2.5 text-[12px] backdrop-blur-xl">
+      <p className="mb-2 font-medium text-ink-primary">{label}</p>
       <div className="flex items-center gap-2 text-ink-secondary">
-        <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-        Текущий: <span className="tabular text-ink-primary">{formatCompact(current)}</span>
+        <span className="h-1.5 w-1.5 rounded-full bg-accent-bright" />
+        Текущий
+        <span className="tabular ml-auto pl-3 text-ink-primary">
+          {formatCompact(current)}
+        </span>
       </div>
-      <div className="flex items-center gap-2 text-ink-secondary">
+      <div className="mt-1 flex items-center gap-2 text-ink-secondary">
         <span className="h-1.5 w-1.5 rounded-full bg-ink-muted" />
-        Прошлый: <span className="tabular text-ink-primary">{formatCompact(previous)}</span>
+        Прошлый
+        <span className="tabular ml-auto pl-3 text-ink-primary">
+          {formatCompact(previous)}
+        </span>
       </div>
     </div>
   );
@@ -51,30 +57,23 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
   const [mode, setMode] = useState<ChartMode>("line");
 
   return (
-    <div className="glass flex h-full flex-col rounded-2xl p-4 md:p-5">
-      <div className="mb-1 flex items-center justify-between gap-3">
+    <div className="card card-glow-top flex h-full flex-col p-5 md:p-6">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-ink-primary md:text-base">
+          <h2 className="text-[15px] font-medium tracking-tight text-ink-primary">
             Динамика выручки
           </h2>
-          <div className="mt-1.5 flex items-center gap-3 text-[11px] text-ink-secondary">
-            <span className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Текущий период
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-ink-muted" />
-              Прошлый период
-            </span>
-          </div>
+          <p className="mt-1 text-[12px] text-ink-muted">
+            Помесячно, с наложением прошлого периода
+          </p>
         </div>
 
-        <div className="flex shrink-0 gap-0.5 rounded-lg border border-border p-0.5">
+        <div className="flex shrink-0 gap-0.5 rounded-full border border-border bg-surface-inner p-1">
           <button
             aria-label="Линейный график"
             aria-pressed={mode === "line"}
             onClick={() => setMode("line")}
-            className={`rounded-md p-1.5 ${
+            className={`rounded-full p-1.5 transition-colors ${
               mode === "line"
                 ? "bg-accent-soft text-accent-bright"
                 : "text-ink-muted hover:text-ink-secondary"
@@ -86,7 +85,7 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
             aria-label="Столбчатый график"
             aria-pressed={mode === "bar"}
             onClick={() => setMode("bar")}
-            className={`rounded-md p-1.5 ${
+            className={`rounded-full p-1.5 transition-colors ${
               mode === "bar"
                 ? "bg-accent-soft text-accent-bright"
                 : "text-ink-muted hover:text-ink-secondary"
@@ -97,14 +96,25 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
         </div>
       </div>
 
-      <div className="mt-2 h-[220px] w-full md:h-[320px] lg:h-[360px]">
+      <div className="mt-4 flex items-center gap-4 text-[11px] text-ink-secondary">
+        <span className="flex items-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent-bright" />
+          Текущий период
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-ink-muted" />
+          Прошлый период
+        </span>
+      </div>
+
+      <div className="mt-5 h-[220px] w-full md:h-[300px] lg:h-[340px]">
         <ResponsiveContainer width="100%" height="100%">
           {mode === "line" ? (
-            <AreaChart data={data} margin={{ top: 8, right: 4, left: -12, bottom: 0 }}>
+            <AreaChart data={data} margin={{ top: 8, right: 4, left: -6, bottom: 0 }}>
               <defs>
                 <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.22} />
-                  <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--accent-bright)" stopOpacity={0.24} />
+                  <stop offset="100%" stopColor="var(--accent-bright)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} stroke="var(--border)" />
@@ -112,24 +122,25 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
                 dataKey="month"
                 tickLine={false}
                 axisLine={false}
-                interval={0}
-                minTickGap={24}
+                interval="preserveStartEnd"
+                minTickGap={16}
                 tick={{ fill: "var(--ink-muted)", fontSize: 11 }}
+                dy={4}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                width={44}
+                width={62}
                 tick={{ fill: "var(--ink-muted)", fontSize: 10 }}
-                tickFormatter={(v) => formatCompact(v)}
+                tickFormatter={formatAxisTick}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: "var(--border-strong)" }} />
               <Area
                 type="monotone"
                 dataKey="previousRevenue"
                 stroke="var(--ink-muted)"
-                strokeWidth={1.6}
-                strokeOpacity={0.5}
+                strokeWidth={1.5}
+                strokeOpacity={0.55}
                 fill="none"
                 isAnimationActive={false}
                 dot={false}
@@ -137,47 +148,53 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
               <Area
                 type="monotone"
                 dataKey="revenue"
-                stroke="var(--accent)"
+                stroke="var(--accent-bright)"
                 strokeWidth={2}
                 fill="url(#revenueFill)"
                 isAnimationActive={false}
                 dot={false}
-                activeDot={{ r: 4, fill: "var(--accent)", stroke: "var(--page)", strokeWidth: 2 }}
+                activeDot={{
+                  r: 4,
+                  fill: "var(--accent-bright)",
+                  stroke: "var(--page)",
+                  strokeWidth: 2,
+                }}
               />
             </AreaChart>
           ) : (
-            <BarChart data={data} margin={{ top: 8, right: 4, left: -12, bottom: 0 }} barGap={2}>
+            <BarChart data={data} margin={{ top: 8, right: 4, left: -6, bottom: 0 }} barGap={3}>
               <CartesianGrid vertical={false} stroke="var(--border)" />
               <XAxis
                 dataKey="month"
                 tickLine={false}
                 axisLine={false}
-                interval={0}
-                minTickGap={24}
+                interval="preserveStartEnd"
+                minTickGap={16}
                 tick={{ fill: "var(--ink-muted)", fontSize: 11 }}
+                dy={4}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                width={44}
+                width={62}
                 tick={{ fill: "var(--ink-muted)", fontSize: 10 }}
-                tickFormatter={(v) => formatCompact(v)}
+                tickFormatter={formatAxisTick}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--surface-hover)" }} />
               <Bar
                 dataKey="previousRevenue"
                 fill="var(--ink-muted)"
-                fillOpacity={0.35}
+                fillOpacity={0.3}
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
-                maxBarSize={16}
+                maxBarSize={14}
               />
               <Bar
                 dataKey="revenue"
                 fill="var(--accent)"
                 radius={[4, 4, 0, 0]}
                 isAnimationActive={false}
-                maxBarSize={16}
+                maxBarSize={14}
               />
             </BarChart>
           )}

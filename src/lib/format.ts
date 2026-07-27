@@ -16,6 +16,18 @@ export function formatCompact(value: number): string {
   return formatCurrency(value);
 }
 
+// Axis ticks drop the currency symbol so each label stays on one line —
+// the unit is carried by the tooltip and the card title instead.
+export function formatAxisTick(value: number): string {
+  if (Math.abs(value) >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1).replace(".", ",").replace(/,0$/, "")} млн`;
+  }
+  if (Math.abs(value) >= 1_000) {
+    return `${Math.round(value / 1_000)} тыс`;
+  }
+  return String(value);
+}
+
 export function formatNumber(value: number): string {
   return new Intl.NumberFormat("ru-RU").format(value);
 }

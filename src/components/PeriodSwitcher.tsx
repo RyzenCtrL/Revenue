@@ -14,7 +14,7 @@ export function PeriodSwitcher({
 }) {
   return (
     <div
-      className="flex gap-1.5 overflow-x-auto no-scrollbar md:gap-1 md:rounded-xl md:border md:border-border md:bg-surface-solid md:p-1"
+      className="flex gap-1 overflow-x-auto no-scrollbar rounded-full border border-border bg-surface-inner p-1"
       role="tablist"
       aria-label="Период"
     >
@@ -26,10 +26,10 @@ export function PeriodSwitcher({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(p)}
-            className={`shrink-0 rounded-lg px-3.5 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors md:px-4 md:py-1.5 ${
+            className={`shrink-0 rounded-full px-4 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors ${
               active
-                ? "bg-accent-soft text-accent-bright border border-accent/30 md:border-0"
-                : "text-ink-secondary border border-border md:border-0 hover:text-ink-primary hover:bg-surface-hover"
+                ? "bg-accent-soft text-accent-bright"
+                : "text-ink-secondary hover:text-ink-primary"
             }`}
           >
             {PERIOD_LABELS[p]}

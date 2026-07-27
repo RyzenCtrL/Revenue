@@ -10,16 +10,16 @@ export function Sparkline({
   positive: boolean;
 }) {
   const points = data.map((v, i) => ({ i, v }));
-  const color = positive ? "var(--accent)" : "var(--negative)";
+  const color = positive ? "var(--accent-bright)" : "var(--negative)";
   const gradientId = `spark-${positive ? "up" : "down"}`;
 
   return (
-    <div className="h-9 w-full md:h-10">
+    <div className="h-11 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={points} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
+        <AreaChart data={points} margin={{ top: 3, right: 0, bottom: 0, left: 0 }}>
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.28} />
+              <stop offset="0%" stopColor={color} stopOpacity={0.22} />
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
@@ -27,7 +27,7 @@ export function Sparkline({
             type="monotone"
             dataKey="v"
             stroke={color}
-            strokeWidth={1.6}
+            strokeWidth={1.5}
             fill={`url(#${gradientId})`}
             isAnimationActive={false}
             dot={false}

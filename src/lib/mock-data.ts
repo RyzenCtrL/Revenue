@@ -184,6 +184,10 @@ export const orders: Order[] = Array.from({ length: 56 }).map((_, i) => {
 
 // ---------- Category breakdown (derived from orders) ----------
 
+// Colour is assigned by rank, not by category identity: the ramp runs
+// bright → deep so the largest share always reads as the most luminous.
+const CATEGORY_RAMP = ["#5ff2a0", "#34e58a", "#22c55e", "#189d54", "#0f7040"];
+
 export const categorySlices: CategorySlice[] = (() => {
   const totals = new Map<string, number>();
   for (const o of orders) {
@@ -199,7 +203,12 @@ export const categorySlices: CategorySlice[] = (() => {
       percent: grandTotal ? (value / grandTotal) * 100 : 0,
       color: c.color,
     };
-  }).sort((a, b) => b.value - a.value);
+  })
+    .sort((a, b) => b.value - a.value)
+    .map((slice, i) => ({
+      ...slice,
+      color: CATEGORY_RAMP[i % CATEGORY_RAMP.length],
+    }));
 })();
 
 // ---------- KPI cards per period ----------
@@ -243,21 +252,21 @@ export const kpiByPeriod: Record<Period, KpiMetric[]> = {
     kpi("refunds", "Возвраты", "1.9%", -1.2, { invert: true }),
   ],
   week: [
-    kpi("revenue", "Выручка", "1 246 800 ₽", 9.2),
+    kpi("revenue", "Выручка", "1,25 млн ₽", 9.2),
     kpi("orders", "Заказы", "182", 5.6),
     kpi("aov", "Средний чек", "6 851 ₽", 3.4),
     kpi("conversion", "Конверсия", "4.1%", 0.6),
     kpi("refunds", "Возвраты", "2.3%", 0.8, { invert: true }),
   ],
   month: [
-    kpi("revenue", "Выручка", "5 318 400 ₽", 12.7),
+    kpi("revenue", "Выручка", "5,32 млн ₽", 12.7),
     kpi("orders", "Заказы", "764", 8.9),
     kpi("aov", "Средний чек", "6 962 ₽", 3.5),
     kpi("conversion", "Конверсия", "4.4%", 1.1),
     kpi("refunds", "Возвраты", "2.1%", -0.5, { invert: true }),
   ],
   year: [
-    kpi("revenue", "Выручка", "58 940 000 ₽", 24.3),
+    kpi("revenue", "Выручка", "58,9 млн ₽", 24.3),
     kpi("orders", "Заказы", "8 512", 17.8),
     kpi("aov", "Средний чек", "6 924 ₽", 5.2),
     kpi("conversion", "Конверсия", "4.2%", 2.0),

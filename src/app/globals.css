@@ -11,32 +11,33 @@
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo,
     monospace;
 
-  /* Base surfaces */
-  --page: #0a0d0b;
-  --surface: rgba(18, 23, 20, 0.72);
-  --surface-solid: #121714;
-  --surface-hover: rgba(255, 255, 255, 0.03);
+  /* Base surfaces — near-black with a cold green undertone */
+  --page: #050706;
+  --surface: rgba(14, 20, 16, 0.64);
+  --surface-solid: #0c1210;
+  --surface-hover: rgba(255, 255, 255, 0.028);
+  --surface-inner: rgba(255, 255, 255, 0.035);
 
-  /* Borders — thin glass edges instead of shadows */
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.14);
+  /* Hairlines — barely-there edges, never shadows */
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.11);
 
   /* Ink */
-  --ink-primary: #f4f6f4;
-  --ink-secondary: #8b968f;
-  --ink-muted: #5c6b62;
+  --ink-primary: #e9eeea;
+  --ink-secondary: #7d8c83;
+  --ink-muted: #4e5b53;
 
-  /* Accent — malachite/emerald family */
+  /* Accent — emerald that glows rather than shouts */
   --accent: #22c55e;
-  --accent-bright: #34e58a;
-  --accent-soft: rgba(34, 197, 94, 0.14);
-  --accent-border: rgba(34, 197, 94, 0.32);
-  --accent-deep: #0f2e1f;
-  --accent-mid: #1a3d2a;
+  --accent-bright: #3ddc84;
+  --accent-soft: rgba(34, 197, 94, 0.1);
+  --accent-border: rgba(34, 197, 94, 0.22);
+  --accent-glow: rgba(34, 197, 94, 0.14);
+  --accent-deep: #0d2418;
 
   /* Status */
-  --negative: #f0827e;
-  --warning: #d8a24a;
+  --negative: #e8918c;
+  --warning: #d2a25c;
 }
 
 * {
@@ -66,16 +67,10 @@ body {
 body {
   color: var(--ink-primary);
   background: var(--page);
-  background-image: radial-gradient(
-      ellipse 900px 500px at 15% -10%,
-      rgba(34, 197, 94, 0.08),
-      transparent 60%
-    ),
-    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(34, 197, 94, 0.05), transparent 55%);
-  background-attachment: fixed;
   font-family: var(--font-sans);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.011em;
 }
 
 ::selection {
@@ -83,7 +78,6 @@ body {
   color: var(--ink-primary);
 }
 
-/* Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -104,11 +98,68 @@ body {
   scrollbar-width: none;
 }
 
-.glass {
-  background: var(--surface);
+/* ---- The card: glass over a pool of emerald light ---------------------
+   ::before is the glow bleeding up from behind the content.
+   ::after is the lit top edge that sells the "pane of glass" read.      */
+.card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 20px;
   border: 1px solid var(--border);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: linear-gradient(
+    180deg,
+    rgba(22, 30, 25, 0.66) 0%,
+    rgba(10, 15, 12, 0.66) 100%
+  );
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 120% 78% at 50% 108%,
+    var(--accent-glow) 0%,
+    rgba(34, 197, 94, 0.05) 38%,
+    transparent 72%
+  );
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.11) 50%,
+    transparent 100%
+  );
+}
+
+/* Glow anchored to the top — for cards whose focal visual sits up high. */
+.card-glow-top::before {
+  background: radial-gradient(
+    ellipse 110% 70% at 50% -8%,
+    var(--accent-glow) 0%,
+    rgba(34, 197, 94, 0.045) 40%,
+    transparent 72%
+  );
+}
+
+/* An inset panel nested inside a card (chart wells, list rows). */
+.inset {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-inner);
 }
 
 .tabular {

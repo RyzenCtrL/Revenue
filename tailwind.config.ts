@@ -13,6 +13,7 @@ const config: Config = {
         surface: "var(--surface)",
         "surface-solid": "var(--surface-solid)",
         "surface-hover": "var(--surface-hover)",
+        "surface-inner": "var(--surface-inner)",
         border: "var(--border)",
         "border-strong": "var(--border-strong)",
         ink: {
@@ -25,7 +26,7 @@ const config: Config = {
           bright: "var(--accent-bright)",
           soft: "var(--accent-soft)",
           deep: "var(--accent-deep)",
-          mid: "var(--accent-mid)",
+          glow: "var(--accent-glow)",
         },
         negative: "var(--negative)",
         warning: "var(--warning)",

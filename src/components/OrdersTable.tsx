@@ -29,7 +29,7 @@ const PAGE_SIZE = 8;
 
 function ProductPill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-block max-w-full truncate rounded-full border border-[color:var(--accent-border)] bg-transparent px-2.5 py-0.5 text-[13px] font-medium text-ink-primary">
+    <span className="inline-block max-w-full truncate rounded-full border border-[color:var(--accent-border)] px-3 py-1 text-[13px] text-ink-primary">
       {children}
     </span>
   );
@@ -84,35 +84,32 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
   );
 
   return (
-    <div className="glass rounded-2xl p-4 md:p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-ink-primary md:text-base">
-          Заказы
-        </h2>
-        <span className="tabular text-xs text-ink-muted">
-          {sorted.length} всего
-        </span>
+    <div className="card p-5 md:p-6">
+      <div className="flex items-baseline justify-between gap-3">
+        <div>
+          <h2 className="text-[15px] font-medium tracking-tight text-ink-primary">
+            Заказы
+          </h2>
+          <p className="mt-1 text-[12px] text-ink-muted">
+            {sorted.length} записей за период
+          </p>
+        </div>
       </div>
 
       {/* Mobile: card list */}
-      <ul className="flex flex-col gap-2.5 md:hidden">
+      <ul className="mt-5 flex flex-col gap-2 md:hidden">
         {pageItems.map((o) => (
-          <li
-            key={o.id}
-            className="rounded-xl border border-border bg-surface-hover p-3"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <ProductPill>{o.product}</ProductPill>
-                <p className="mt-1.5 truncate text-[11px] text-ink-muted">
-                  {o.category} · {o.id}
-                </p>
-              </div>
-              <span className="tabular shrink-0 font-mono text-[13px] font-semibold text-ink-primary">
+          <li key={o.id} className="inset p-4">
+            <div className="flex items-start justify-between gap-3">
+              <ProductPill>{o.product}</ProductPill>
+              <span className="tabular shrink-0 text-[14px] font-medium text-ink-primary">
                 {formatCurrency(o.amount)}
               </span>
             </div>
-            <div className="mt-2.5 flex items-center justify-between gap-2">
+            <p className="mt-2.5 truncate text-[11px] text-ink-muted">
+              {o.category} · {o.id}
+            </p>
+            <div className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
               <StatusBadge status={o.status} />
               <span className="tabular text-[11px] text-ink-muted">
                 {formatDate(o.date)}
@@ -123,8 +120,8 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
       </ul>
 
       {/* Desktop: table */}
-      <div className="hidden md:block">
-        <table className="w-full border-collapse text-sm">
+      <div className="mt-5 hidden md:block">
+        <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr className="border-b border-border">
               {COLUMNS.map((col) => (
@@ -137,23 +134,23 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
                         : "descending"
                       : "none"
                   }
-                  className={`select-none py-2.5 text-xs font-medium text-ink-muted ${
+                  className={`select-none pb-3 text-[11px] font-medium uppercase tracking-wide text-ink-muted ${
                     col.align === "right" ? "text-right" : "text-left"
                   }`}
                 >
                   <button
                     onClick={() => toggleSort(col.key)}
-                    className={`inline-flex items-center gap-1 hover:text-ink-secondary ${
+                    className={`inline-flex items-center gap-1.5 transition-colors hover:text-ink-secondary ${
                       col.align === "right" ? "flex-row-reverse" : ""
                     } ${sortKey === col.key ? "text-ink-secondary" : ""}`}
                   >
                     {col.label}
                     <SortIcon
-                      className={`h-2.5 w-2.5 transition-transform ${
+                      className={`h-2.5 w-2.5 ${
                         sortKey === col.key && sortDir === "asc"
                           ? "rotate-180"
                           : ""
-                      } ${sortKey === col.key ? "opacity-100" : "opacity-30"}`}
+                      } ${sortKey === col.key ? "opacity-100" : "opacity-25"}`}
                     />
                   </button>
                 </th>
@@ -164,22 +161,24 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
             {pageItems.map((o) => (
               <tr
                 key={o.id}
-                className="border-b border-border/60 last:border-0 hover:bg-surface-hover"
+                className="border-b border-border/50 last:border-0 transition-colors hover:bg-surface-hover"
               >
-                <td className="py-3 font-mono text-xs text-ink-secondary">
+                <td className="py-4 font-mono text-[12px] text-ink-muted">
                   {o.id}
                 </td>
-                <td className="py-3 pr-4">
+                <td className="py-4 pr-4">
                   <ProductPill>{o.product}</ProductPill>
-                  <p className="mt-1 text-xs text-ink-muted">{o.category}</p>
+                  <p className="mt-1.5 text-[11px] text-ink-muted">
+                    {o.category}
+                  </p>
                 </td>
-                <td className="tabular py-3 text-right font-mono font-medium text-ink-primary">
+                <td className="tabular py-4 text-right font-medium text-ink-primary">
                   {formatCurrency(o.amount)}
                 </td>
-                <td className="py-3">
+                <td className="py-4">
                   <StatusBadge status={o.status} />
                 </td>
-                <td className="tabular py-3 text-xs text-ink-secondary">
+                <td className="tabular py-4 text-[12px] text-ink-secondary">
                   {formatDate(o.date)}
                 </td>
               </tr>
@@ -189,22 +188,22 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
       </div>
 
       {/* Pagination */}
-      <div className="mt-4 flex items-center justify-between gap-3">
-        <span className="tabular text-xs text-ink-muted">
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
+        <span className="tabular text-[12px] text-ink-muted">
           Стр. {clampedPage + 1} из {pageCount}
         </span>
-        <div className="flex gap-1.5">
+        <div className="flex gap-2">
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={clampedPage === 0}
-            className="rounded-lg border border-border px-3 py-1.5 text-xs text-ink-secondary hover:bg-surface-hover disabled:opacity-30 disabled:hover:bg-transparent"
+            className="rounded-full border border-border px-4 py-1.5 text-[12px] text-ink-secondary transition-colors hover:bg-surface-hover hover:text-ink-primary disabled:opacity-25 disabled:hover:bg-transparent"
           >
             Назад
           </button>
           <button
             onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
             disabled={clampedPage >= pageCount - 1}
-            className="rounded-lg border border-border px-3 py-1.5 text-xs text-ink-secondary hover:bg-surface-hover disabled:opacity-30 disabled:hover:bg-transparent"
+            className="rounded-full border border-border px-4 py-1.5 text-[12px] text-ink-secondary transition-colors hover:bg-surface-hover hover:text-ink-primary disabled:opacity-25 disabled:hover:bg-transparent"
           >
             Далее
           </button>
