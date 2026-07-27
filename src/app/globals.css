@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+
+  /* Fonts — Geist, bundled locally via the `geist` package (no network fetch) */
+  --font-sans: var(--font-geist-sans), -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo,
+    monospace;
+
+  /* Base surfaces */
+  --page: #0a0d0b;
+  --surface: rgba(18, 23, 20, 0.72);
+  --surface-solid: #121714;
+  --surface-hover: rgba(255, 255, 255, 0.03);
+
+  /* Borders — thin glass edges instead of shadows */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* Ink */
+  --ink-primary: #f4f6f4;
+  --ink-secondary: #8b968f;
+  --ink-muted: #5c6b62;
+
+  /* Accent — malachite/emerald family */
+  --accent: #22c55e;
+  --accent-bright: #34e58a;
+  --accent-soft: rgba(34, 197, 94, 0.14);
+  --accent-border: rgba(34, 197, 94, 0.32);
+  --accent-deep: #0f2e1f;
+  --accent-mid: #1a3d2a;
+
+  /* Status */
+  --negative: #f0827e;
+  --warning: #d8a24a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  color: var(--ink-primary);
+  background: var(--page);
+  background-image: radial-gradient(
+      ellipse 900px 500px at 15% -10%,
+      rgba(34, 197, 94, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(34, 197, 94, 0.05), transparent 55%);
+  background-attachment: fixed;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink-primary);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 8px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
