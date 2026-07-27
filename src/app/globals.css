@@ -190,25 +190,7 @@ body {
 /* Selecting a donut slice fades it in/out instead of snapping — the one
    deliberate motion touch on this page, done in plain CSS. */
 .donut-cell {
-  transition: fill-opacity 260ms ease, stroke-opacity 260ms ease;
-}
-
-/* A specular-style rim highlight for the selected slice: a bright dashed
-   stroke chases the edge while a soft glow blooms outward — same idea as a
-   shader-driven "traveling shine," done with an SVG stroke + CSS keyframes
-   instead of a WebGL canvas (the shape is a pie sector, not a rounded
-   rect, so a literal shader port doesn't apply here). */
-.donut-cell--active {
-  stroke-dasharray: 10 26;
-  filter: drop-shadow(0 0 5px rgba(214, 255, 230, 0.65))
-    drop-shadow(0 0 1px rgba(214, 255, 230, 0.9));
-  animation: donut-shine-sweep 2.4s linear infinite;
-}
-
-@keyframes donut-shine-sweep {
-  to {
-    stroke-dashoffset: -360;
-  }
+  transition: fill-opacity 260ms ease;
 }
 
 .tabular {

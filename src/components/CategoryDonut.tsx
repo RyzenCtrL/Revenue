@@ -53,19 +53,14 @@ export function CategoryDonut({ slices }: { slices: CategorySlice[] }) {
                 isAnimationActive={false}
                 onClick={(_, i) => toggle(i)}
               >
-                {slices.map((s, i) => {
-                  const isActive = active?.name === s.name;
-                  return (
-                    <Cell
-                      key={s.name}
-                      fill={`url(#donut-grad-${i})`}
-                      fillOpacity={active === null || isActive ? 1 : 0.2}
-                      stroke={isActive ? "#d6ffe6" : "none"}
-                      strokeWidth={isActive ? 2 : 0}
-                      className={`donut-cell${isActive ? " donut-cell--active" : ""}`}
-                    />
-                  );
-                })}
+                {slices.map((s, i) => (
+                  <Cell
+                    key={s.name}
+                    fill={`url(#donut-grad-${i})`}
+                    fillOpacity={active === null || active.name === s.name ? 1 : 0.2}
+                    className="donut-cell"
+                  />
+                ))}
               </Pie>
             </PieChart>
           </ResponsiveContainer>

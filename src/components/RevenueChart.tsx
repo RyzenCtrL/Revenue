@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -55,6 +55,14 @@ function CustomTooltip({
 
 export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
   const [mode, setMode] = useState<ChartMode>("line");
+  const lineBtnRef = useRef<HTMLButtonElement>(null);
+  const barBtnRef = useRef<HTMLButtonElement>(null);
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+
+  useLayoutEffect(() => {
+    const btn = mode === "line" ? lineBtnRef.current : barBtnRef.current;
+    if (btn) setIndicator({ left: btn.offsetLeft, width: btn.offsetWidth });
+  }, [mode]);
 
   return (
     <div className="card card-glow-top flex h-full flex-col p-5 md:p-6">
@@ -68,26 +76,33 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
           </p>
         </div>
 
-        <div className="flex shrink-0 gap-0.5 rounded-full border border-border bg-surface-inner p-1">
+        <div className="relative flex shrink-0 gap-0.5 rounded-full border border-border bg-surface-inner p-1">
+          <span
+            aria-hidden="true"
+            className="accent-glass pointer-events-none absolute inset-y-1 left-0 rounded-full transition-all duration-300 ease-out"
+            style={{ transform: `translateX(${indicator.left}px)`, width: indicator.width }}
+          />
           <button
+            ref={lineBtnRef}
             aria-label="Линейный график"
             aria-pressed={mode === "line"}
             onClick={() => setMode("line")}
-            className={`rounded-full border border-transparent p-1.5 transition-colors duration-200 ${
+            className={`relative z-10 rounded-full p-1.5 transition-colors duration-200 ${
               mode === "line"
-                ? "accent-glass text-accent-bright"
+                ? "text-accent-bright"
                 : "text-ink-muted hover:text-ink-secondary"
             }`}
           >
             <LineChartIcon className="h-3.5 w-3.5" />
           </button>
           <button
+            ref={barBtnRef}
             aria-label="Столбчатый график"
             aria-pressed={mode === "bar"}
             onClick={() => setMode("bar")}
-            className={`rounded-full border border-transparent p-1.5 transition-colors duration-200 ${
+            className={`relative z-10 rounded-full p-1.5 transition-colors duration-200 ${
               mode === "bar"
-                ? "accent-glass text-accent-bright"
+                ? "text-accent-bright"
                 : "text-ink-muted hover:text-ink-secondary"
             }`}
           >
