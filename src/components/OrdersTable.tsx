@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import type { Order, OrderStatus } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { useCurrency } from "@/lib/currency";
 import { StatusBadge } from "./StatusBadge";
 import { SortIcon } from "./icons";
 
@@ -41,6 +42,7 @@ function ProductPill({ children }: { children: React.ReactNode }) {
 }
 
 export function OrdersTable({ orders }: { orders: Order[] }) {
+  const { currency } = useCurrency();
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(0);
@@ -137,7 +139,7 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
             <div className="flex items-start justify-between gap-3">
               <ProductPill>{o.product}</ProductPill>
               <span className="tabular shrink-0 text-[14px] font-medium text-ink-primary">
-                {formatCurrency(o.amount)}
+                {formatCurrency(o.amount, currency)}
               </span>
             </div>
             <p className="mt-2.5 truncate text-[11px] text-ink-muted">
@@ -228,7 +230,7 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
                 </p>
               </div>
               <div role="cell" className="tabular text-right font-medium text-ink-primary">
-                {formatCurrency(o.amount)}
+                {formatCurrency(o.amount, currency)}
               </div>
               <div role="cell">
                 <StatusBadge status={o.status} />

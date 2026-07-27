@@ -4,6 +4,7 @@ import { useId } from "react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { MetricUnit, SparklinePoint } from "@/lib/types";
 import { formatByUnit } from "@/lib/format";
+import { useCurrency } from "@/lib/currency";
 
 function SparkTooltip({
   active,
@@ -14,13 +15,14 @@ function SparkTooltip({
   payload?: { payload: SparklinePoint }[];
   unit: MetricUnit;
 }) {
+  const { currency } = useCurrency();
   if (!active || !payload || payload.length === 0) return null;
   const point = payload[0].payload;
   return (
     <div className="pointer-events-none rounded-lg border border-border-strong bg-surface-solid/95 px-2.5 py-1.5 text-[11px] backdrop-blur-xl">
       <p className="text-ink-muted">{point.label}</p>
       <p className="tabular font-medium text-ink-primary">
-        {formatByUnit(point.value, unit)}
+        {formatByUnit(point.value, unit, currency)}
       </p>
     </div>
   );

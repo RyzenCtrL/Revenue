@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import type { MonthlyPoint } from "@/lib/types";
 import { formatAxisTick, formatCompact } from "@/lib/format";
+import { useCurrency, type Currency } from "@/lib/currency";
 import { BarChartIcon, LineChartIcon } from "./icons";
 
 type ChartMode = "line" | "bar";
@@ -22,10 +23,12 @@ function CustomTooltip({
   active,
   payload,
   label,
+  currency,
 }: {
   active?: boolean;
   payload?: { value: number; dataKey: string }[];
   label?: string;
+  currency: Currency;
 }) {
   if (!active || !payload || payload.length === 0) return null;
   const current = payload.find((p) => p.dataKey === "revenue")?.value ?? 0;
@@ -39,14 +42,14 @@ function CustomTooltip({
         <span className="h-1.5 w-1.5 rounded-full bg-accent-bright" />
         Текущий
         <span className="tabular ml-auto pl-3 text-ink-primary">
-          {formatCompact(current)}
+          {formatCompact(current, currency)}
         </span>
       </div>
       <div className="mt-1 flex items-center gap-2 text-ink-secondary">
         <span className="h-1.5 w-1.5 rounded-full bg-ink-muted" />
         Прошлый
         <span className="tabular ml-auto pl-3 text-ink-primary">
-          {formatCompact(previous)}
+          {formatCompact(previous, currency)}
         </span>
       </div>
     </div>
@@ -55,6 +58,7 @@ function CustomTooltip({
 
 export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
   const [mode, setMode] = useState<ChartMode>("line");
+  const { currency } = useCurrency();
   const lineBtnRef = useRef<HTMLButtonElement>(null);
   const barBtnRef = useRef<HTMLButtonElement>(null);
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
@@ -152,9 +156,9 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
                 axisLine={false}
                 width={62}
                 tick={{ fill: "var(--ink-muted)", fontSize: 10 }}
-                tickFormatter={formatAxisTick}
+                tickFormatter={(v) => formatAxisTick(v, currency)}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ stroke: "var(--border-strong)" }} />
+              <Tooltip content={<CustomTooltip currency={currency} />} cursor={{ stroke: "var(--border-strong)" }} />
               <Area
                 type="monotone"
                 dataKey="previousRevenue"
@@ -204,9 +208,9 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
                 axisLine={false}
                 width={62}
                 tick={{ fill: "var(--ink-muted)", fontSize: 10 }}
-                tickFormatter={formatAxisTick}
+                tickFormatter={(v) => formatAxisTick(v, currency)}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--surface-hover)" }} />
+              <Tooltip content={<CustomTooltip currency={currency} />} cursor={{ fill: "var(--surface-hover)" }} />
               <Bar
                 dataKey="previousRevenue"
                 fill="var(--ink-muted)"

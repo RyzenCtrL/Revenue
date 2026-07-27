@@ -2,6 +2,7 @@
 
 import type { Period } from "@/lib/types";
 import { PeriodSwitcher } from "./PeriodSwitcher";
+import { CurrencyToggle } from "./CurrencyToggle";
 
 export function Header({
   period,
@@ -12,7 +13,7 @@ export function Header({
 }) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-page/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 md:px-8 md:py-6">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl accent-glass text-accent-bright">
             <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
@@ -32,7 +33,13 @@ export function Header({
             <p className="text-[12px] text-ink-muted">Аналитика продаж</p>
           </div>
         </div>
-        <PeriodSwitcher value={period} onChange={onPeriodChange} />
+
+        <div className="flex items-center gap-3">
+          <CurrencyToggle />
+          <div className="hidden md:block">
+            <PeriodSwitcher value={period} onChange={onPeriodChange} />
+          </div>
+        </div>
       </div>
     </header>
   );

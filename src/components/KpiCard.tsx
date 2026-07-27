@@ -1,4 +1,8 @@
+"use client";
+
 import type { KpiMetric } from "@/lib/types";
+import { formatHeadlineCurrency, formatNumber, formatPercent } from "@/lib/format";
+import { useCurrency } from "@/lib/currency";
 import { ArrowDownIcon, ArrowUpIcon } from "./icons";
 import { Sparkline } from "./Sparkline";
 
@@ -9,8 +13,16 @@ export function KpiCard({
   metric: KpiMetric;
   className?: string;
 }) {
-  const { label, value, delta, isPositive, sparkline, unit } = metric;
+  const { label, rawValue, delta, isPositive, sparkline, unit } = metric;
+  const { currency } = useCurrency();
   const DeltaIcon = delta >= 0 ? ArrowUpIcon : ArrowDownIcon;
+
+  const displayValue =
+    unit === "currency"
+      ? formatHeadlineCurrency(rawValue, currency)
+      : unit === "percent"
+        ? formatPercent(rawValue)
+        : formatNumber(Math.round(rawValue));
 
   return (
     <div className={`card flex flex-col p-5 md:p-6 ${className}`}>
@@ -20,7 +32,7 @@ export function KpiCard({
 
       <div className="mt-4 flex items-end justify-between gap-2">
         <span className="tabular whitespace-nowrap text-[24px] font-medium leading-none tracking-tight text-ink-primary md:text-[28px]">
-          {value}
+          {displayValue}
         </span>
       </div>
 

@@ -283,7 +283,6 @@ function sparklinePoints(
 function kpi(
   id: string,
   label: string,
-  value: string,
   rawValue: number,
   unit: MetricUnit,
   delta: number,
@@ -294,7 +293,7 @@ function kpi(
   return {
     id,
     label,
-    value,
+    rawValue,
     delta,
     isPositive: invert ? delta <= 0 : delta >= 0,
     unit,
@@ -304,40 +303,32 @@ function kpi(
 
 export const kpiByPeriod: Record<Period, KpiMetric[]> = {
   today: [
-    kpi("revenue", "Выручка", "184 200 ₽", 184200, "currency", 6.4, "today"),
-    kpi("orders", "Заказы", "27", 27, "count", 3.1, "today"),
-    kpi("aov", "Средний чек", "6 822 ₽", 6822, "currency", 2.9, "today"),
-    kpi("conversion", "Конверсия", "3.8%", 3.8, "percent", -0.4, "today"),
-    kpi("refunds", "Возвраты", "1.9%", 1.9, "percent", -1.2, "today", {
-      invert: true,
-    }),
+    kpi("revenue", "Выручка", 184200, "currency", 6.4, "today"),
+    kpi("orders", "Заказы", 27, "count", 3.1, "today"),
+    kpi("aov", "Средний чек", 6822, "currency", 2.9, "today"),
+    kpi("conversion", "Конверсия", 3.8, "percent", -0.4, "today"),
+    kpi("refunds", "Возвраты", 1.9, "percent", -1.2, "today", { invert: true }),
   ],
   week: [
-    kpi("revenue", "Выручка", "1,25 млн ₽", 1246800, "currency", 9.2, "week"),
-    kpi("orders", "Заказы", "182", 182, "count", 5.6, "week"),
-    kpi("aov", "Средний чек", "6 851 ₽", 6851, "currency", 3.4, "week"),
-    kpi("conversion", "Конверсия", "4.1%", 4.1, "percent", 0.6, "week"),
-    kpi("refunds", "Возвраты", "2.3%", 2.3, "percent", 0.8, "week", {
-      invert: true,
-    }),
+    kpi("revenue", "Выручка", 1246800, "currency", 9.2, "week"),
+    kpi("orders", "Заказы", 182, "count", 5.6, "week"),
+    kpi("aov", "Средний чек", 6851, "currency", 3.4, "week"),
+    kpi("conversion", "Конверсия", 4.1, "percent", 0.6, "week"),
+    kpi("refunds", "Возвраты", 2.3, "percent", 0.8, "week", { invert: true }),
   ],
   month: [
-    kpi("revenue", "Выручка", "5,32 млн ₽", 5318400, "currency", 12.7, "month"),
-    kpi("orders", "Заказы", "764", 764, "count", 8.9, "month"),
-    kpi("aov", "Средний чек", "6 962 ₽", 6962, "currency", 3.5, "month"),
-    kpi("conversion", "Конверсия", "4.4%", 4.4, "percent", 1.1, "month"),
-    kpi("refunds", "Возвраты", "2.1%", 2.1, "percent", -0.5, "month", {
-      invert: true,
-    }),
+    kpi("revenue", "Выручка", 5318400, "currency", 12.7, "month"),
+    kpi("orders", "Заказы", 764, "count", 8.9, "month"),
+    kpi("aov", "Средний чек", 6962, "currency", 3.5, "month"),
+    kpi("conversion", "Конверсия", 4.4, "percent", 1.1, "month"),
+    kpi("refunds", "Возвраты", 2.1, "percent", -0.5, "month", { invert: true }),
   ],
   year: [
-    kpi("revenue", "Выручка", "58,9 млн ₽", 58900000, "currency", 24.3, "year"),
-    kpi("orders", "Заказы", "8 512", 8512, "count", 17.8, "year"),
-    kpi("aov", "Средний чек", "6 924 ₽", 6924, "currency", 5.2, "year"),
-    kpi("conversion", "Конверсия", "4.2%", 4.2, "percent", 2.0, "year"),
-    kpi("refunds", "Возвраты", "2.4%", 2.4, "percent", -0.9, "year", {
-      invert: true,
-    }),
+    kpi("revenue", "Выручка", 58900000, "currency", 24.3, "year"),
+    kpi("orders", "Заказы", 8512, "count", 17.8, "year"),
+    kpi("aov", "Средний чек", 6924, "currency", 5.2, "year"),
+    kpi("conversion", "Конверсия", 4.2, "percent", 2.0, "year"),
+    kpi("refunds", "Возвраты", 2.4, "percent", -0.9, "year", { invert: true }),
   ],
 };
 

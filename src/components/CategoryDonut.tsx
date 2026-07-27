@@ -4,8 +4,10 @@ import { useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import type { CategorySlice } from "@/lib/types";
 import { formatCompact } from "@/lib/format";
+import { useCurrency } from "@/lib/currency";
 
 export function CategoryDonut({ slices }: { slices: CategorySlice[] }) {
+  const { currency } = useCurrency();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const total = slices.reduce((acc, s) => acc + s.value, 0);
   const active = activeIndex !== null ? slices[activeIndex] : null;
@@ -69,7 +71,7 @@ export function CategoryDonut({ slices }: { slices: CategorySlice[] }) {
               {active ? active.name : "Всего"}
             </span>
             <span className="mt-1 tabular text-[18px] font-medium tracking-tight text-ink-primary">
-              {formatCompact(active ? active.value : total)}
+              {formatCompact(active ? active.value : total, currency)}
             </span>
             {active && (
               <span className="mt-0.5 tabular text-[11px] text-accent-bright">

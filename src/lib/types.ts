@@ -42,7 +42,11 @@ export interface SparklinePoint {
 export interface KpiMetric {
   id: string;
   label: string;
-  value: string;
+  // Raw value in the metric's base unit — RUB for currency, a plain count
+  // for count, percentage points for percent. Formatted for display at
+  // render time (so currency-unit metrics can react to the selected
+  // display currency instead of baking in a fixed formatted string).
+  rawValue: number;
   delta: number; // signed, percent
   isPositive: boolean;
   unit: MetricUnit;
