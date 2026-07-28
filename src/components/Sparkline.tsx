@@ -67,7 +67,9 @@ export function Sparkline({
             stroke={`url(#${strokeId})`}
             strokeWidth={1.5}
             fill={`url(#${fillId})`}
-            isAnimationActive={false}
+            isAnimationActive={true}
+            animationDuration={450}
+            animationEasing="ease-out"
             dot={false}
             activeDot={{ r: 3, fill: color, stroke: "var(--page)", strokeWidth: 1.5 }}
           />

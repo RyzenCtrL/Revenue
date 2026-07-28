@@ -4,9 +4,13 @@ import { convertAmount, type Currency } from "./currency";
 // mock data is generated in) plus the display currency, and converts
 // internally — call sites never convert by hand, so there's one place that
 // can get the rate wrong instead of a dozen.
+//
+// Each also has a "FromConverted" counterpart that formats a value that's
+// ALREADY in the display currency (no conversion inside) — used by count-up
+// animations, which need to interpolate the converted number frame-by-frame
+// rather than re-converting a raw RUB value every tick.
 
-export function formatCurrency(rubValue: number, currency: Currency = "RUB"): string {
-  const value = convertAmount(rubValue, currency);
+export function formatCurrencyFromConverted(value: number, currency: Currency): string {
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency,
@@ -14,8 +18,11 @@ export function formatCurrency(rubValue: number, currency: Currency = "RUB"): st
   }).format(value);
 }
 
-export function formatCompact(rubValue: number, currency: Currency = "RUB"): string {
-  const value = convertAmount(rubValue, currency);
+export function formatCurrency(rubValue: number, currency: Currency = "RUB"): string {
+  return formatCurrencyFromConverted(convertAmount(rubValue, currency), currency);
+}
+
+export function formatCompactFromConverted(value: number, currency: Currency): string {
   const symbol = currency === "USD" ? "$" : "₽";
   if (Math.abs(value) >= 1_000_000) {
     return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, "")} млн ${symbol}`;
@@ -23,17 +30,17 @@ export function formatCompact(rubValue: number, currency: Currency = "RUB"): str
   if (Math.abs(value) >= 1_000) {
     return `${(value / 1_000).toFixed(0)} тыс ${symbol}`;
   }
-  return formatCurrency(rubValue, currency);
+  return formatCurrencyFromConverted(value, currency);
+}
+
+export function formatCompact(rubValue: number, currency: Currency = "RUB"): string {
+  return formatCompactFromConverted(convertAmount(rubValue, currency), currency);
 }
 
 // The big headline number in a KPI card: exact rubles/dollars below the
 // million mark (matches how a real finance dashboard reads at that scale),
 // compact "5,32 млн" notation at and above it.
-export function formatHeadlineCurrency(
-  rubValue: number,
-  currency: Currency = "RUB"
-): string {
-  const value = convertAmount(rubValue, currency);
+export function formatHeadlineFromConverted(value: number, currency: Currency): string {
   if (Math.abs(value) >= 1_000_000) {
     const symbol = currency === "USD" ? "$" : "₽";
     const compact = (value / 1_000_000)
@@ -43,7 +50,14 @@ export function formatHeadlineCurrency(
       .replace(/,$/, "");
     return `${compact} млн ${symbol}`;
   }
-  return formatCurrency(rubValue, currency);
+  return formatCurrencyFromConverted(value, currency);
+}
+
+export function formatHeadlineCurrency(
+  rubValue: number,
+  currency: Currency = "RUB"
+): string {
+  return formatHeadlineFromConverted(convertAmount(rubValue, currency), currency);
 }
 
 // Axis ticks drop the currency symbol so each label stays on one line —

@@ -2,8 +2,9 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import type { CategorySlice } from "@/lib/types";
-import { formatCompact } from "@/lib/format";
-import { useCurrency } from "@/lib/currency";
+import { formatCompactFromConverted } from "@/lib/format";
+import { useCurrency, convertAmount } from "@/lib/currency";
+import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 
 export function CategoryDonut({
   slices,
@@ -17,6 +18,9 @@ export function CategoryDonut({
   const { currency } = useCurrency();
   const total = slices.reduce((acc, s) => acc + s.value, 0);
   const active = slices.find((s) => s.name === activeCategory) ?? null;
+
+  const target = convertAmount(active ? active.value : total, currency);
+  const animated = useAnimatedNumber(target);
 
   return (
     <div className="card flex h-full flex-col p-5 md:p-6">
@@ -56,7 +60,9 @@ export function CategoryDonut({
                 outerRadius="100%"
                 paddingAngle={2.5}
                 stroke="none"
-                isAnimationActive={false}
+                isAnimationActive={true}
+                animationDuration={500}
+                animationEasing="ease-out"
                 onClick={(_, i) => onToggle(slices[i].name)}
               >
                 {slices.map((s, i) => (
@@ -75,7 +81,7 @@ export function CategoryDonut({
               {active ? active.name : "Всего"}
             </span>
             <span className="mt-1 tabular text-[18px] font-medium tracking-tight text-ink-primary">
-              {formatCompact(active ? active.value : total, currency)}
+              {formatCompactFromConverted(animated, currency)}
             </span>
             {active && (
               <span className="mt-0.5 tabular text-[11px] text-accent-bright">

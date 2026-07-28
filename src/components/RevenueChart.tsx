@@ -166,7 +166,9 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
                 strokeWidth={1.5}
                 strokeOpacity={0.55}
                 fill="none"
-                isAnimationActive={false}
+                isAnimationActive={true}
+                animationDuration={550}
+                animationEasing="ease-out"
                 dot={false}
               />
               <Area
@@ -175,7 +177,9 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
                 stroke="url(#revenueStroke)"
                 strokeWidth={2}
                 fill="url(#revenueFill)"
-                isAnimationActive={false}
+                isAnimationActive={true}
+                animationDuration={550}
+                animationEasing="ease-out"
                 dot={false}
                 activeDot={{
                   r: 4,
@@ -216,14 +220,18 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
                 fill="var(--ink-muted)"
                 fillOpacity={0.3}
                 radius={[4, 4, 0, 0]}
-                isAnimationActive={false}
+                isAnimationActive={true}
+                animationDuration={550}
+                animationEasing="ease-out"
                 maxBarSize={14}
               />
               <Bar
                 dataKey="revenue"
                 fill="url(#barFill)"
                 radius={[4, 4, 0, 0]}
-                isAnimationActive={false}
+                isAnimationActive={true}
+                animationDuration={550}
+                animationEasing="ease-out"
                 maxBarSize={14}
               />
             </BarChart>

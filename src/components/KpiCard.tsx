@@ -1,8 +1,9 @@
 "use client";
 
 import type { KpiMetric } from "@/lib/types";
-import { formatHeadlineCurrency, formatNumber, formatPercent } from "@/lib/format";
-import { useCurrency } from "@/lib/currency";
+import { formatHeadlineFromConverted, formatNumber, formatPercent } from "@/lib/format";
+import { useCurrency, convertAmount } from "@/lib/currency";
+import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { ArrowDownIcon, ArrowUpIcon } from "./icons";
 import { Sparkline } from "./Sparkline";
 
@@ -17,12 +18,18 @@ export function KpiCard({
   const { currency } = useCurrency();
   const DeltaIcon = delta >= 0 ? ArrowUpIcon : ArrowDownIcon;
 
+  // Animate the already-converted number, not the raw RUB value, so a
+  // period change AND a ₽↔$ toggle both trigger a count-up (the raw value
+  // alone doesn't change when only the currency does).
+  const target = unit === "currency" ? convertAmount(rawValue, currency) : rawValue;
+  const animated = useAnimatedNumber(target);
+
   const displayValue =
     unit === "currency"
-      ? formatHeadlineCurrency(rawValue, currency)
+      ? formatHeadlineFromConverted(animated, currency)
       : unit === "percent"
-        ? formatPercent(rawValue)
-        : formatNumber(Math.round(rawValue));
+        ? formatPercent(animated)
+        : formatNumber(Math.round(animated));
 
   return (
     <div className={`card flex flex-col p-5 md:p-6 ${className}`}>
