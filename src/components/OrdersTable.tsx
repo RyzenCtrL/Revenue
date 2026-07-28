@@ -2,15 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Order, OrderStatus } from "@/lib/types";
-import { formatCompact, formatCurrency, formatDate } from "@/lib/format";
-import { useCurrency, type Currency } from "@/lib/currency";
+import { formatCurrency, formatDate } from "@/lib/format";
+import { useCurrency } from "@/lib/currency";
 import { StatusBadge, STATUS_CONFIG } from "./StatusBadge";
 import { SortIcon, SearchIcon } from "./icons";
 
 type SortKey = "id" | "product" | "amount" | "status" | "date";
 type SortDir = "asc" | "desc";
 type StatusFilter = "all" | OrderStatus;
-type AmountFilter = "all" | "r1" | "r2" | "r3" | "r4";
 
 const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "Все" },
@@ -19,23 +18,6 @@ const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
     label: STATUS_CONFIG[status].label,
   })),
 ];
-
-// Bounds in RUB (the base currency all mock amounts are generated in) —
-// labels are formatted per the selected display currency at render time.
-const AMOUNT_BOUNDS: Record<Exclude<AmountFilter, "all">, { min: number; max: number }> = {
-  r1: { min: 0, max: 10_000 },
-  r2: { min: 10_000, max: 25_000 },
-  r3: { min: 25_000, max: 50_000 },
-  r4: { min: 50_000, max: Infinity },
-};
-
-function amountFilterLabel(key: AmountFilter, currency: Currency): string {
-  if (key === "all") return "Любая сумма";
-  const { min, max } = AMOUNT_BOUNDS[key];
-  if (min === 0) return `До ${formatCompact(max, currency)}`;
-  if (!Number.isFinite(max)) return `От ${formatCompact(min, currency)}`;
-  return `${formatCompact(min, currency)}–${formatCompact(max, currency)}`;
-}
 
 const STATUS_ORDER: Record<OrderStatus, number> = {
   delivered: 0,
@@ -81,7 +63,6 @@ export function OrdersTable({
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [amountFilter, setAmountFilter] = useState<AmountFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -101,10 +82,6 @@ export function OrdersTable({
     return orders.filter((o) => {
       if (statusFilter !== "all" && o.status !== statusFilter) return false;
       if (categoryFilter && o.category !== categoryFilter) return false;
-      if (amountFilter !== "all") {
-        const { min, max } = AMOUNT_BOUNDS[amountFilter];
-        if (o.amount < min || o.amount >= max) return false;
-      }
       if (query) {
         const matchesId = o.id.toLowerCase().includes(query);
         const matchesProduct = o.product.toLocaleLowerCase("ru").includes(query);
@@ -112,13 +89,13 @@ export function OrdersTable({
       }
       return true;
     });
-  }, [orders, statusFilter, categoryFilter, amountFilter, searchQuery]);
+  }, [orders, statusFilter, categoryFilter, searchQuery]);
 
   // Any filter changing invalidates the current page — start over at 1
   // rather than showing whatever happened to still fit at the old index.
   useEffect(() => {
     setPage(0);
-  }, [statusFilter, categoryFilter, amountFilter, searchQuery]);
+  }, [statusFilter, categoryFilter, searchQuery]);
 
   const sorted = useMemo(() => {
     const copy = [...filtered];
@@ -216,7 +193,7 @@ export function OrdersTable({
         />
       </div>
 
-      {/* Mobile: status filter chips */}
+      {/* Mobile: status filter chips + price sort toggle */}
       <div className="mt-3 flex gap-1.5 overflow-x-auto no-scrollbar md:hidden">
         {STATUS_FILTERS.map((f) => {
           const active = f.value === statusFilter;
@@ -234,26 +211,22 @@ export function OrdersTable({
             </button>
           );
         })}
-      </div>
-
-      {/* Mobile: amount filter chips */}
-      <div className="mt-1.5 flex gap-1.5 overflow-x-auto no-scrollbar md:hidden">
-        {(["all", "r1", "r2", "r3", "r4"] as AmountFilter[]).map((key) => {
-          const active = key === amountFilter;
-          return (
-            <button
-              key={key}
-              onClick={() => setAmountFilter(key)}
-              className={`shrink-0 rounded-full border px-3 py-1.5 text-[12px] font-medium whitespace-nowrap transition-colors duration-200 ${
-                active
-                  ? "accent-glass text-accent-bright"
-                  : "border-border text-ink-secondary hover:text-ink-primary"
-              }`}
-            >
-              {amountFilterLabel(key, currency)}
-            </button>
-          );
-        })}
+        <span className="my-1 w-px shrink-0 bg-border" aria-hidden="true" />
+        <button
+          onClick={() => toggleSort("amount")}
+          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-medium whitespace-nowrap transition-colors duration-200 ${
+            sortKey === "amount"
+              ? "accent-glass text-accent-bright"
+              : "border-border text-ink-secondary hover:text-ink-primary"
+          }`}
+        >
+          Цена
+          <SortIcon
+            className={`h-2.5 w-2.5 ${
+              sortKey === "amount" && sortDir === "asc" ? "rotate-180" : ""
+            } ${sortKey === "amount" ? "opacity-100" : "opacity-40"}`}
+          />
+        </button>
       </div>
 
       {isEmpty ? (
